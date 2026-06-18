@@ -3,7 +3,6 @@
 -- Semana 09 — Empresa de Exportación
 -- ============================================
 
--- Apagamos temporalmente las FK para limpiar la base de datos sin errores de restricción
 PRAGMA foreign_keys = OFF;
 
 -- ============================================
@@ -14,14 +13,12 @@ DROP TABLE IF EXISTS shipments;
 DROP TABLE IF EXISTS products;
 DROP TABLE IF EXISTS clients;
 
--- Encendemos OBLIGATORIAMENTE las FK para la creación del esquema y los constraints
 PRAGMA foreign_keys = ON;
 
 -- ============================================
 -- PARTE 1: ESQUEMA DE BASES DE DATOS RELACIONAL
 -- ============================================
 
--- Tabla de referencia: Clientes (clients) - Mínimo 20 registros requeridos
 CREATE TABLE clients (
     id      INTEGER PRIMARY KEY AUTOINCREMENT,
     name    TEXT NOT NULL,
@@ -29,7 +26,6 @@ CREATE TABLE clients (
     country TEXT NOT NULL
 );
 
--- Tabla principal: Productos (products) - Mínimo 20 registros requeridos
 CREATE TABLE products (
     id        INTEGER PRIMARY KEY AUTOINCREMENT,
     name      TEXT NOT NULL UNIQUE,
@@ -38,7 +34,6 @@ CREATE TABLE products (
     client_id INTEGER REFERENCES clients (id) ON DELETE RESTRICT
 );
 
--- Tabla hija: Envíos (shipments) - Mínimo 80 registros requeridos
 CREATE TABLE shipments (
     id            INTEGER PRIMARY KEY AUTOINCREMENT,
     tracking_code TEXT NOT NULL UNIQUE,
@@ -48,7 +43,7 @@ CREATE TABLE shipments (
     product_id    INTEGER REFERENCES products (id) ON DELETE RESTRICT
 );
 
--- Tabla adicional del dominio: Certificaciones (certifications)
+
 CREATE TABLE certifications (
     id                 INTEGER PRIMARY KEY AUTOINCREMENT,
     product_id         INTEGER NOT NULL REFERENCES products(id) ON DELETE CASCADE,
@@ -60,7 +55,6 @@ CREATE TABLE certifications (
 -- PARTE 2: INSERTS Y DATOS DE PRUEBA REALISTAS
 -- ============================================
 
--- 1. Insertar 20 Clientes (Tabla Secundaria de Referencia)
 INSERT INTO clients (id, name, email, country) VALUES
 (1, 'Global Trade Inc', 'info@globaltrade.com', 'USA'),
 (2, 'EuroFoods Corp', 'contact@eurofoods.es', 'Spain'),
@@ -83,8 +77,6 @@ INSERT INTO clients (id, name, email, country) VALUES
 (19, 'Brasil Nuts Corp', 'sales@brasilnuts.br', 'Brazil'),
 (20, 'Antillas Trading', 'info@antillastrading.com', 'Jamaica');
 
--- 2. Insertar 25 Productos (Tabla Principal - Cumple con mínimo de 20)
--- Nota: Los productos del 21 al 25 no tendrán envíos asociados para actuar como "huérfanos".
 INSERT INTO products (id, name, category, price, client_id) VALUES
 (1, 'Premium Coffee', 'Food', 25.50, 1),
 (2, 'Organic Cocoa', 'Food', 30.00, 2),
@@ -106,13 +98,12 @@ INSERT INTO products (id, name, category, price, client_id) VALUES
 (18, 'Cashew Nuts', 'Food', 21.00, 18),
 (19, 'Coconut Oil', 'Food', 17.00, 19),
 (20, 'Natural Honey', 'Food', 24.00, 20),
-(21, 'Blueberries Specialty', 'Fruit', 16.00, 1),  -- Huérfano 1
-(22, 'Green Tea Premium', 'Beverages', 13.50, 2), -- Huérfano 2
-(23, 'Sea Salt Pack', 'Food', 6.00, 3),           -- Huérfano 3
-(24, 'Vanilla Beans Luxury', 'Food', 40.00, 4),    -- Huérfano 4
-(25, 'Dried Fruits Mix', 'Food', 18.50, 5);        -- Huérfano 5
+(21, 'Blueberries Specialty', 'Fruit', 16.00, 1),  
+(22, 'Green Tea Premium', 'Beverages', 13.50, 2), 
+(23, 'Sea Salt Pack', 'Food', 6.00, 3),           
+(24, 'Vanilla Beans Luxury', 'Food', 40.00, 4),    
+(25, 'Dried Fruits Mix', 'Food', 18.50, 5);       
 
--- 3. Insertar 80 Envíos (Tabla Hija - Cumple con mínimo de 80 filas)
 INSERT INTO shipments (tracking_code, shipment_date, status, total_cost, product_id) VALUES
 ('EXP-001', '2026-01-05', 'Delivered', 450.00, 1),
 ('EXP-002', '2026-01-07', 'Delivered', 600.00, 2),
@@ -199,8 +190,6 @@ INSERT INTO shipments (tracking_code, shipment_date, status, total_cost, product
 -- PARTE 3: CONSULTAS OPERACIONALES (JOINs)
 -- ============================================
 
--- CONSULTA 1: INNER JOIN principal
--- Muestra solo los productos que tienen envíos registrados
 SELECT
     p.name          AS producto,
     s.tracking_code AS codigo_rastreo,
@@ -209,8 +198,6 @@ SELECT
 FROM products p
 INNER JOIN shipments s ON s.product_id = p.id;
 
--- CONSULTA 2: JOIN con tres tablas
--- Encadena shipments + products + clients para ver el flujo comercial
 SELECT
     s.tracking_code AS codigo_rastreo,
     p.name          AS producto,
@@ -221,8 +208,6 @@ FROM shipments s
 INNER JOIN products p ON s.product_id = p.id
 INNER JOIN clients  c ON p.client_id  = c.id;
 
--- CONSULTA 3: LEFT JOIN — todos los registros
--- Muestra todos los productos del catálogo, tengan o no envíos vinculados
 SELECT
     p.name          AS producto,
     p.category      AS categoria,
@@ -230,8 +215,7 @@ SELECT
 FROM products p
 LEFT JOIN shipments s ON s.product_id = p.id;
 
--- CONSULTA 4: Detectar huérfanos
--- Filtra específicamente aquellos productos que jamás se han enviado
+
 SELECT
     p.id       AS id_producto,
     p.name     AS producto_sin_envios,
@@ -240,8 +224,6 @@ FROM products p
 LEFT JOIN shipments s ON s.product_id = p.id
 WHERE s.id IS NULL;
 
--- CONSULTA 5: Reporte agregado con LEFT JOIN + COUNT
--- Consolida la cantidad total de envíos por producto (incluyendo ceros)
 SELECT
     p.name       AS producto,
     COUNT(s.id)  AS total_envios
