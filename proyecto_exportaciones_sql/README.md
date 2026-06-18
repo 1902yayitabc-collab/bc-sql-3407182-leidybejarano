@@ -1,54 +1,77 @@
-Aquí tienes el archivo README.md adaptado exactamente al mismo estilo, formato y estructura de tu dominio, pero con toda la información técnica, requisitos y consultas de la Semana 07:
+# Proyecto Semana 07 — NULL y Constraints
 
-Proyecto Semana 07 — NULL y Constraints
-📌 Descripción
+## 📌 Descripción
+
 Este proyecto corresponde a la Semana 07 del bootcamp de SQL.
-El objetivo fue ampliar el esquema del dominio asignado (Empresa de Exportación) aplicando correctamente constraints de integridad (NOT NULL, UNIQUE, CHECK, FOREIGN KEY) y garantizando el manejo seguro de valores NULL mediante consultas con IS NULL y COALESCE en SQLite.
 
-🏢 Dominio del Proyecto
+El objetivo fue ampliar el esquema del dominio asignado: **Empresa de Exportación**, aplicando correctamente constraints de integridad estructural y de negocio (`NOT NULL`, `UNIQUE`, `CHECK`, `FOREIGN KEY`), garantizando además el manejo seguro de valores `NULL` en SQLite.
+
+---
+
+# 🏢 Dominio del Proyecto
+
 Empresa de exportación internacional.
 
-Entidades principales
-products
+## Entidades principales
 
-clients
+- products
+- clients
+- shipments
+- certifications
 
-shipments
+---
 
-certifications
+# 🛠️ Tecnologías utilizadas
 
-🛠️ Tecnologías utilizadas
-SQLite 3
+- SQLite 3
+- Git Bash
+- GitHub
 
-Git Bash
+---
 
-GitHub
+# 📂 Estructura del proyecto
 
-📂 Estructura del proyecto
-products Productos exportados internacionalmente (Tabla Secundaria con restricciones de precio positivo y unicidad de nombres).
+## products
+Productos exportados (Tabla secundaria con restricciones de precio positivo y unicidad).
 
-clients Clientes internacionales de la empresa (Tabla Secundaria con correos electrónicos únicos obligatorios).
+## clients
+Clientes internacionales de la empresa (Tabla secundaria con correos corporativos únicos).
 
-shipments Tabla Principal con el registro detallado de los envíos realizados, donde se aplican la mayoría de constraints y el manejo de datos opcionales (NULL).
+## shipments
+**Tabla principal** con el registro de envíos realizados, donde se aplican la mayoría de constraints y el control de datos opcionales (`NULL`).
 
-certifications Certificaciones de calidad asociadas a los productos de exportación.
+## certifications
+Certificaciones asociadas a los productos.
 
-✅ Requisitos e Integridad Implementados
-NOT NULL Se marcaron explícitamente las columnas obligatorias para la operación del negocio (códigos, nombres, costos y llaves).
+---
 
-UNIQUE Aplicado en tracking_code (envíos), name (productos) y email (clientes) para impedir duplicados ilegales en el sistema.
+# ✅ Reportes e Integridad implementados
 
-CHECK Validaciones de reglas de negocio en columnas numéricas: precios de productos mayores a cero (price > 0) y costos de envío no negativos (total_cost >= 0).
+## NOT NULL
+Se marcaron explícitamente las columnas obligatorias (códigos, nombres, costos y llaves).
 
-FOREIGN KEY Relación estricta entre tablas activada mediante PRAGMA foreign_keys = ON, aplicando políticas ON DELETE RESTRICT para proteger la integridad referencial.
+## UNIQUE
+Aplicado en `tracking_code`, `name` y `email` para impedir duplicaciones de datos clave.
 
-IS NULL Consulta que filtra filas con valores opcionales desconocidos (ej: envíos en camino que aún no tienen fecha de entrega).
+## CHECK
+Validaciones lógicas en columnas numéricas: precios de productos mayores a cero (`price > 0`) y costos de envío no negativos (`total_cost >= 0`).
 
-COALESCE Función utilizada en las consultas para reemplazar de manera segura los valores NULL por un texto alternativo descriptivo.
+## FOREIGN KEY
+Relación estricta entre tablas activada con `PRAGMA foreign_keys = ON` y políticas `ON DELETE RESTRICT` para asegurar la integridad referencial.
 
-🔎 Ejemplos de consultas
-Consulta de filtrado con IS NULL
-SQL
+## IS NULL
+Consulta de filtrado para aislar filas con valores opcionales desconocidos o pendientes.
+
+## COALESCE
+Función utilizada para reemplazar de manera segura los valores `NULL` por textos alternativos descriptivos en los reportes.
+
+---
+
+# 🔎 Ejemplos de consultas
+
+## Filtrado de registros con IS NULL
+
+```sql
 SELECT 
     id, 
     tracking_code, 
@@ -56,46 +79,48 @@ SELECT
     shipment_date
 FROM shipments
 WHERE delivery_date IS NULL;
-Reporte de reemplazo seguro con COALESCE
+
+## Reemplazo seguro de nulos con COALESCE
 SQL
 SELECT 
     tracking_code,
     status,
     COALESCE(customs_notes, 'Sin observaciones / Aduana Limpia') AS observaciones_aduana
 FROM shipments;
-▶️ Cómo ejecutar el proyecto
-Ejecutar el script completo
 
+▶️ Cómo ejecutar el proyecto
+Ejecutar el script
 Bash
 /c/sqlite/sqlite3 mi_dominio.db < starter/proyecto.sql
-Abrir la consola de SQLite
-
+Abrir SQLite
 Bash
 /c/sqlite/sqlite3 mi_dominio.db
-Verificar las tablas creadas
-
+Ver tablas
 SQL
 .tables
+
 ✅ Requisitos cumplidos
-✔ Uso explícito de NOT NULL
+✔ Uso de NOT NULL
 
-✔ Uso de restricción UNIQUE en datos clave de identificación
+✔ Uso de UNIQUE
 
-✔ Validaciones lógicas mediante CHECK
+✔ Uso de CHECK
 
-✔ Integridad referencial con FOREIGN KEY y PRAGMA activo
+✔ Uso de FOREIGN KEY
 
-✔ Consulta de filtrado con operador IS NULL
+✔ Uso de IS NULL
 
-✔ Reemplazo seguro de nulos con la función COALESCE
+✔ Uso de COALESCE
 
-✔ Mínimo obligatorio de 30 filas reales en la tabla principal (shipments)
+✔ Alias descriptivos
 
-✔ Al menos 3 registros con columnas opcionales en NULL (Límites del constraint)
+✔ Comentarios en español
 
-✔ Comentarios estructurados en español
+✔ Código funcional en SQLite
 
-✔ Código 100% funcional y ejecutable en SQLite
+✔ 30 registros reales en la tabla principal (shipments)
+
+✔ Al menos 3 filas con columnas opcionales en NULL
 
 👩‍💻 Autor
 Dayana Bejarano
